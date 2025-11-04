@@ -82,58 +82,76 @@ VSCode의 `mcp.json`에 다음 MCP 서버들이 등록되어 있습니다:
    - 설정 파일: `$env:APPDATA\Code\User\mcp.json`
    - 필요 시 자동으로 서버 등록 추가
 
-### 파일 편집 작업 (중요!)
-**파일을 편집해야 할 때는 직접 수정하지 않고 VSCode에서 열어서 사용자가 편집하도록 안내합니다:**
+### 파일 생성/쓰기 작업 (중요!) - 모든 파일에 적용
+**모든 파일 생성 및 수정 작업은 반드시 MCP 도구를 사용합니다.**
 
-**올바른 순서**:
-1. **먼저** PowerShell 명령으로 파일을 VSCode에서 열기
-2. 사용자에게 편집 방법 안내
-3. (선택적) 파일을 읽어서 변경사항 확인
+**올바른 순서 (필수!):**
+1. **먼저** PowerShell로 파일을 VSCode에서 열기 (파일이 없어도 열림)
+   ```powershell
+   & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" "파일경로"
+   ```
 
-```powershell
-# 파일을 VSCode에서 열기
-& "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" "파일경로"
+2. **그 다음** MCP 도구로 파일 생성/수정
+   - 새 파일 생성: `mcp_mcp-fileops_write_to_file`
+   - 내용 추가: `mcp_mcp-fileops_append_to_file`
+
+3. 사용자가 Keep 버튼으로 변경사항 확인
+
+**예시:**
+```
+1. Tool: run_in_terminal
+   Command: & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" "D:/project/new-file.txt"
+
+2. Tool: mcp_mcp-fileops_write_to_file
+   Args: { "path": "D:/project/new-file.txt", "content": "..." }
 ```
 
-또는 MCP tool 사용:
-```
-Tool: mcp_mcp-fileops_open_file_vscode
-Args: { "path": "파일경로" }
-```
+### MCP 도구 사용 규칙 (모든 파일)
+**작업 영역 내부/외부 구분 없이 모든 파일 작업에 MCP 도구 사용:**
 
-**편집 프로세스**:
-1. 파일을 VSCode에서 열기
-2. 사용자가 수동으로 편집하도록 안내
-3. 필요시 파일을 읽어서 변경사항 확인
+1. **파일 읽기**: `mcp_mcp-fileops_read_file`
+   ```
+   Tool: mcp_mcp-fileops_read_file
+   Args: { "path": "파일경로" }
+   ```
 
-### 파일 생성/쓰기가 필요한 경우에만 MCP Tool 사용
-다음과 같은 경우에만 MCP 도구로 직접 파일을 생성/수정합니다:
+2. **파일 쓰기** (생성/덮어쓰기): `mcp_mcp-fileops_write_to_file`
+   - **반드시** 파일을 먼저 VSCode에서 연 후 사용
+   ```
+   Tool: mcp_mcp-fileops_write_to_file
+   Args: { "path": "파일경로", "content": "..." }
+   ```
 
-1. **새 파일 생성**: `mcp_mcp-fileops_write_to_file`
-   - 완전히 새로운 파일을 생성할 때
-   - 생성 후 반드시 PowerShell로 VSCode에서 열기
-   
-2. **로그 추가**: `mcp_mcp-fileops_append_to_file`
-   - 로그 파일에 내용을 추가할 때
-   - 추가 후 필요시 VSCode에서 열기
-
-3. **파일 읽기**: `mcp_mcp-fileops_read_file`
-   - 모든 파일 내용을 읽을 때 사용
+3. **파일에 추가**: `mcp_mcp-fileops_append_to_file`
+   - **반드시** 파일을 먼저 VSCode에서 연 후 사용
+   ```
+   Tool: mcp_mcp-fileops_append_to_file
+   Args: { "path": "파일경로", "content": "..." }
+   ```
 
 4. **디렉토리 목록**: `mcp_mcp-fileops_list_directory`
-   - 디렉토리 내용을 조회할 때
+   ```
+   Tool: mcp_mcp-fileops_list_directory
+   Args: { "path": "디렉토리경로" }
+   ```
 
 5. **파일 삭제**: `mcp_mcp-fileops_delete_file`
-   - 파일을 삭제할 때
+   ```
+   Tool: mcp_mcp-fileops_delete_file
+   Args: { "path": "파일경로" }
+   ```
 
-### 기본 VSCode 도구 사용 가능
-작업 영역 내부의 파일은 기본 VSCode 도구를 사용할 수 있습니다:
-- ✅ `read_file` - 파일 읽기
-- ✅ `create_file` - 새 파일 생성
-- ✅ `replace_string_in_file` - 파일 내용 수정
-- ✅ `list_dir` - 디렉토리 목록
+### 기본 VSCode 도구 사용 금지
+다음 도구들은 **절대 사용하지 않습니다**:
+- ❌ `create_file` - 대신 순서대로: VSCode 열기 → `mcp_mcp-fileops_write_to_file`
+- ❌ `replace_string_in_file` - 대신 순서대로: VSCode 열기 → `mcp_mcp-fileops_write_to_file`
+- ⚠️ `read_file` - 읽기 전용은 사용 가능하지만 `mcp_mcp-fileops_read_file` 권장
+- ⚠️ `list_dir` - 사용 가능하지만 `mcp_mcp-fileops_list_directory` 권장
 
-작업 영역 외부의 파일은 MCP 도구를 사용합니다.
+**절대 규칙:**
+- 모든 파일 생성/수정은 **먼저 VSCode에서 열고** → **그 다음 MCP 도구 사용**
+- 작업 영역 내부/외부 구분 없음
+- Keep 버튼으로 변경사항 확인
 
 ## 작업 세션 연속성 관리
 
