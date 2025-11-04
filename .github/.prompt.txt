@@ -1,5 +1,12 @@
-# Cline 프로젝트 지시사항
+# Copilot 프로젝트 지시사항
+
+## MCP 파일 작업 후 필수 동작
+- `mcp_mcp-fileops_write_to_file` 또는 `mcp_mcp-fileops_append_to_file` 사용 후
+- **반드시** PowerShell 명령으로 해당 파일을 VSCode에서 열기:
+  ```powershell
+  & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" "파일경로"
+  ```
 
 ## 개발 환경 설정
-- **Eclipse 설치 경로**: `D:\Eclipse\`
-- **프로젝트 경로**: `D:\git\cline-for-eclipse\`
+- **VSCode 경로**: `$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe`
+- **프로젝트 경로**: `D:\git\mcp-fileops\`
