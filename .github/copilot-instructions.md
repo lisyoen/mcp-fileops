@@ -82,64 +82,58 @@ VSCode의 `mcp.json`에 다음 MCP 서버들이 등록되어 있습니다:
    - 설정 파일: `$env:APPDATA\Code\User\mcp.json`
    - 필요 시 자동으로 서버 등록 추가
 
-### 파일 작업 시 MCP Tool 사용 (중요!)
-**모든 파일 편집 작업에 MCP 도구를 사용합니다** (작업 영역 내부/외부 구분 없이):
+### 파일 편집 작업 (중요!)
+**파일을 편집해야 할 때는 직접 수정하지 않고 VSCode에서 열어서 사용자가 편집하도록 안내합니다:**
 
-1. **파일 읽기**: `mcp_mcp-fileops_read_file`
+**올바른 순서**:
+1. **먼저** PowerShell 명령으로 파일을 VSCode에서 열기
+2. 사용자에게 편집 방법 안내
+3. (선택적) 파일을 읽어서 변경사항 확인
+
+```powershell
+# 파일을 VSCode에서 열기
+& "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" "파일경로"
+```
+
+또는 MCP tool 사용:
+```
+Tool: mcp_mcp-fileops_open_file_vscode
+Args: { "path": "파일경로" }
+```
+
+**편집 프로세스**:
+1. 파일을 VSCode에서 열기
+2. 사용자가 수동으로 편집하도록 안내
+3. 필요시 파일을 읽어서 변경사항 확인
+
+### 파일 생성/쓰기가 필요한 경우에만 MCP Tool 사용
+다음과 같은 경우에만 MCP 도구로 직접 파일을 생성/수정합니다:
+
+1. **새 파일 생성**: `mcp_mcp-fileops_write_to_file`
+   - 완전히 새로운 파일을 생성할 때
+   - 생성 후 반드시 PowerShell로 VSCode에서 열기
+   
+2. **로그 추가**: `mcp_mcp-fileops_append_to_file`
+   - 로그 파일에 내용을 추가할 때
+   - 추가 후 필요시 VSCode에서 열기
+
+3. **파일 읽기**: `mcp_mcp-fileops_read_file`
    - 모든 파일 내용을 읽을 때 사용
-   ```
-   Tool: mcp_mcp-fileops_read_file
-   Args: { "path": "D:/project/file.txt" }
-   ```
-
-2. **파일 쓰기**: `mcp_mcp-fileops_write_to_file`
-   - 모든 파일에 내용을 쓸 때 사용 (덮어쓰기)
-   - **필수**: 파일 작성 후 반드시 PowerShell로 VSCode에서 열기
-   ```
-   Tool: mcp_mcp-fileops_write_to_file
-   Args: { "path": "D:/project/file.txt", "content": "..." }
-   
-   # 파일 작성 후 즉시 VSCode에서 열기
-   Tool: run_in_terminal
-   Command: & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" "D:/project/file.txt"
-   ```
-
-3. **파일에 추가**: `mcp_mcp-fileops_append_to_file`
-   - 모든 파일 끝에 내용을 추가할 때 사용
-   - **필수**: 파일 수정 후 반드시 PowerShell로 VSCode에서 열기
-   ```
-   Tool: mcp_mcp-fileops_append_to_file
-   Args: { "path": "D:/project/file.txt", "content": "..." }
-   
-   # 파일 수정 후 즉시 VSCode에서 열기
-   Tool: run_in_terminal
-   Command: & "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" "D:/project/file.txt"
-   ```
 
 4. **디렉토리 목록**: `mcp_mcp-fileops_list_directory`
-   - 디렉토리 내용을 조회할 때 사용
-   ```
-   Tool: mcp_mcp-fileops_list_directory
-   Args: { "path": "D:/project" }
-   ```
+   - 디렉토리 내용을 조회할 때
 
 5. **파일 삭제**: `mcp_mcp-fileops_delete_file`
-   - 파일을 삭제할 때 사용
-   ```
-   Tool: mcp_mcp-fileops_delete_file
-   Args: { "path": "D:/project/old-file.txt" }
-   ```
+   - 파일을 삭제할 때
 
-**절대 규칙**: 
-- `write_to_file` 또는 `append_to_file` 사용 후 **반드시** PowerShell 명령으로 파일을 VSCode에서 열기
-- 작업 영역 내부 파일이라도 MCP 도구 사용 (VSCode 기본 도구 사용 금지)
-- 예외: 읽기 전용 작업은 `read_file` (기본 도구) 사용 가능
+### 기본 VSCode 도구 사용 가능
+작업 영역 내부의 파일은 기본 VSCode 도구를 사용할 수 있습니다:
+- ✅ `read_file` - 파일 읽기
+- ✅ `create_file` - 새 파일 생성
+- ✅ `replace_string_in_file` - 파일 내용 수정
+- ✅ `list_dir` - 디렉토리 목록
 
-### 기본 VSCode 도구 사용 금지
-다음 도구들은 **사용하지 않습니다**:
-- ❌ `create_file` - 대신 `mcp_mcp-fileops_write_to_file` 사용
-- ❌ `replace_string_in_file` - 대신 파일 전체를 읽고 수정 후 `mcp_mcp-fileops_write_to_file` 사용
-- ⚠️ `read_file` - 읽기만 할 때는 사용 가능, 하지만 편집 전에는 `mcp_mcp-fileops_read_file` 사용 권장
+작업 영역 외부의 파일은 MCP 도구를 사용합니다.
 
 ## 작업 세션 연속성 관리
 
