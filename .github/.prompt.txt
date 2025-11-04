@@ -1,0 +1,5 @@
+# Cline 프로젝트 지시사항
+
+## 개발 환경 설정
+- **Eclipse 설치 경로**: `D:\Eclipse\`
+- **프로젝트 경로**: `D:\git\cline-for-eclipse\`
