@@ -1,5 +1,30 @@
 # Copilot 프로젝트 지시사항
 
+## MCP 서버 자동 설치
+작업 시작 시 필요한 MCP 서버가 설치되어 있는지 확인하고 없으면 자동 설치:
+
+### 1. mcp-websearch
+- 경로 확인: `D:\git\mcp-websearch`
+- 없으면 설치:
+  ```powershell
+  cd D:\git
+  git clone https://github.com/lisyoen/mcp-websearch.git
+  cd mcp-websearch
+  npm install
+  npm run build
+  ```
+
+### 2. mcp-fileops
+- 경로 확인: `D:\git\mcp-fileops`
+- 없으면 설치:
+  ```powershell
+  cd D:\git
+  git clone https://github.com/lisyoen/mcp-fileops.git
+  cd mcp-fileops
+  npm install
+  npm run build
+  ```
+
 ## MCP 파일 작업 후 필수 동작
 - `mcp_mcp-fileops_write_to_file` 또는 `mcp_mcp-fileops_append_to_file` 사용 후
 - **반드시** PowerShell 명령으로 해당 파일을 VSCode에서 열기:
@@ -9,4 +34,7 @@
 
 ## 개발 환경 설정
 - **VSCode 경로**: `$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe`
-- **프로젝트 경로**: `D:\git\mcp-fileops\`
+- **Git 프로젝트 루트**: `D:\git\`
+- **MCP 서버 위치**: 
+  - `D:\git\mcp-websearch\`
+  - `D:\git\mcp-fileops\`

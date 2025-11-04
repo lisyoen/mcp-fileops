@@ -31,18 +31,56 @@ git message 는 한국어로 생성해야 합니다.
 VSCode의 `mcp.json`에 다음 MCP 서버들이 등록되어 있습니다:
 
 1. **mcp-websearch** - 웹 검색 및 크롤링
+   - Repository: https://github.com/lisyoen/mcp-websearch
+   - 설치 경로: `D:\git\mcp-websearch`
    - `mcp_mcp-websearch_web_search` - Bing 검색
    - `mcp_mcp-websearch_web_fetch` - URL 페이지 가져오기
    - `mcp_mcp-websearch_web_scrape` - CSS 선택자로 스크래핑
    - `mcp_mcp-websearch_web_crawl` - BFS 크롤링
 
 2. **mcp-fileops** - 로컬 파일 작업
+   - Repository: https://github.com/lisyoen/mcp-fileops
+   - 설치 경로: `D:\git\mcp-fileops`
    - `mcp_mcp-fileops_read_file` - 파일 읽기
    - `mcp_mcp-fileops_write_to_file` - 파일 쓰기
    - `mcp_mcp-fileops_append_to_file` - 파일에 추가
    - `mcp_mcp-fileops_list_directory` - 디렉토리 목록
    - `mcp_mcp-fileops_delete_file` - 파일 삭제
    - `mcp_mcp-fileops_open_file_vscode` - VSCode에서 파일 열기
+
+### MCP 서버 자동 설치 및 설정
+필요한 MCP 서버가 없는 경우 자동으로 설치합니다:
+
+1. **디렉토리 존재 확인**
+   ```powershell
+   Test-Path "D:\git\mcp-websearch"
+   Test-Path "D:\git\mcp-fileops"
+   ```
+
+2. **없으면 Git Clone 및 빌드**
+   ```powershell
+   # mcp-websearch 설치
+   if (!(Test-Path "D:\git\mcp-websearch")) {
+       cd D:\git
+       git clone https://github.com/lisyoen/mcp-websearch.git
+       cd mcp-websearch
+       npm install
+       npm run build
+   }
+   
+   # mcp-fileops 설치
+   if (!(Test-Path "D:\git\mcp-fileops")) {
+       cd D:\git
+       git clone https://github.com/lisyoen/mcp-fileops.git
+       cd mcp-fileops
+       npm install
+       npm run build
+   }
+   ```
+
+3. **VSCode MCP 설정 확인**
+   - 설정 파일: `$env:APPDATA\Code\User\mcp.json`
+   - 필요 시 자동으로 서버 등록 추가
 
 ### 파일 작업 시 MCP Tool 사용
 작업 영역 외부의 파일에 접근할 때는 반드시 mcp-fileops의 MCP tool을 사용합니다:
